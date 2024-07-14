@@ -127,7 +127,7 @@ def on_generate_resume():
         if st.session_state.job_title == "" or st.session_state.job_description == "":
             st.error("Please enter the job title and job description.")
         else:
-            print(messages)
+            # print(messages)
             st.toast("Generating resume...")
             response = client.chat.completions.create(
                 model=st.session_state.openai_model_name,
