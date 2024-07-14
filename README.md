@@ -2,6 +2,8 @@
 
 This project is a Streamlit-based web application that helps users generate customized resumes and cover letters using AI models. It allows users to input their existing resume in LaTeX format, job descriptions, and personal details, then uses AI to tailor the resume and create a matching cover letter.
 
+![Custom Resume Generator Screenshot](https://i.ibb.co/B2B71Xh/Screenshot-2024-07-14-at-5-47-58-AM.png)
+
 ## Features
 
 - LaTeX resume editor and PDF previewer
