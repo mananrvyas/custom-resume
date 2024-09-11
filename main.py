@@ -100,9 +100,6 @@ def validate_json(final_dict):
     return json.loads(final_dict.replace("```json(", "").replace(")```", "").replace("`", ""), strict=False)
 
 
-
-
-
 def compile_latex(latex_code):
     with open("temp.tex", "w") as f:
         f.write(latex_code)
@@ -151,8 +148,11 @@ with col_latex:
                 st.session_state.pdf_compilation_error_message = error
             else:
                 pdf_base64 = pdf_to_base64(pdf_path)
-                st.session_state.pdf_display = (f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="100%" '
-                                                f'height="1164" type="application/pdf"></iframe>')
+                st.session_state.pdf_display = (
+                    f'<iframe src="data:application/pdf;base64,{pdf_base64}" '
+                    f'style="width: 100%; min-width: 600px; height: 1164px;" '
+                    f'type="application/pdf"></iframe>'
+                )
                 st.session_state.pdf_compiled = True
                 # remove temporary files
                 os.remove("temp.pdf")
@@ -494,7 +494,7 @@ with (col_main):
         if st.button("Update System Prompt"):
             os.environ["INITIAL_SYSTEM_PROMPT"] = st.session_state.system_prompt
             set_key(dotenv_path, "INITIAL_SYSTEM_PROMPT", os.environ["INITIAL_SYSTEM_PROMPT"])
-            st.toast("System Prompt updated successfully.", icon="success")
+            st.toast("System Prompt updated successfully.")
             time.sleep(1)
             st.rerun()
 
@@ -505,7 +505,7 @@ with (col_main):
         if st.button("Update Cover Letter Prompt"):
             os.environ["INITIAL_COVER_LETTER_PROMPT"] = st.session_state.cover_letter_system_prompt
             set_key(dotenv_path, "INITIAL_COVER_LETTER_PROMPT", os.environ["INITIAL_COVER_LETTER_PROMPT"])
-            st.toast("System Prompt updated successfully.", icon="success")
+            st.toast("System Prompt updated successfully.")
             time.sleep(1)
             st.rerun()
         st.markdown("##### Cover Letter")
@@ -560,68 +560,25 @@ with (col_main):
 # ########### FOOTER #######################
 ############################################
 
-
-def link(link, text, **style):
-    return a(_href=link, _target="_blank", style=styles(**style))(text)
-
-
-def layout(*args):
-    style = """
-    <style>
-      # MainMenu {visibility: hidden;}
-      footer {visibility: hidden;}
-     .stApp { bottom: 30px; }
-    </style>
-    """
-
-    style_div = styles(
-        position="fixed",
-        left=0,
-        bottom=0,
-        margin=px(0, 0, 0, 0),
-        width=percent(100),
-        color="white",
-        text_align="center",
-        height="auto",
-        opacity=1
-    )
-
-    style_hr = styles(
-        display="block",
-        margin=px("auto"),
-        border_style="inset",
-        border_width=px(2)
-    )
-
-    body = p()
-    foot = div(
-        style=style_div
-    )(
-        hr(
-            style=style_hr
-        ),
-        body
-    )
-
-    st.markdown(style, unsafe_allow_html=True)
-
-    for arg in args:
-        if isinstance(arg, str):
-            body(arg)
-
-        elif isinstance(arg, HtmlElement):
-            body(arg)
-
-    st.markdown(str(foot), unsafe_allow_html=True)
-
-
-def footer():
-    myargs = [
-        "Made with  ❤ by ",
-        link("https://mananvyas.in", "mananvyas.in"), br(),
-        "© 2024, No Rights Reserved."
-    ]
-    layout(*myargs)
-
-
-footer()
+# Footer
+footer_html = """
+<style>
+    .footer {
+        position: fixed;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        background-color: #262730;
+        color: black;
+        text-align: center;
+        padding: 10px;
+        font-size: 14px;
+        color: white;
+    }
+</style>
+<div class="footer">
+    Made with ❤ by <a href="https://mananvyas.in" target="_blank">mananvyas.in</a><br>
+    © 2024, No Rights Reserved.
+</div>
+"""
+st.markdown(footer_html, unsafe_allow_html=True)
