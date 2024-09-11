@@ -88,7 +88,8 @@ SYSTEM_PROMPT_START = ("You are an expert resume writer and job application spec
                        " of JSON string. You are NOT allowed to change the format of the resume in "
                        "any way unless explicitly stated by the user/job posting. You must provide a "
                        "complete resume in LaTeX format. The cover letter should be plain text."
-                       "REMEMBER: YOU SHOULD PROVIDE THE COMPLETE UPDATED CODE OF RESUME IN LATEX. \n\n"
+                       "REMEMBER: YOU SHOULD PROVIDE THE COMPLETE UPDATED CODE OF RESUME IN LATEX. "
+                       "You should not miss anything from the latex code. if you do, the compilation will fail\n\n"
                        "Here are the custom instructions by the user: \n\n"
                        )
 
@@ -206,12 +207,13 @@ def on_generate_resume():
                 }
             ]
 
-            for i in range(3):
+            for i in range(5):
                 try:
                     response = client.chat.completions.create(
                         model=st.session_state.openai_model_name,
                         response_format={"type": "json_object"},
                         messages=messages,
+                        temperature=0.5,
                     ).choices[0].message.content
                     response = validate_json(response)
                     break
@@ -224,7 +226,7 @@ def on_generate_resume():
         if st.session_state.job_title != "" and st.session_state.job_description != "":
             # st.error("Please enter the job title and job description.")
             client = Anthropic()
-            temperature = 0.5
+            temperature = 0.3
 
             messages = [
                 {
@@ -237,7 +239,7 @@ def on_generate_resume():
                     ]
                 }
             ]
-            for i in range(3):
+            for i in range(5):
                 try:
                     response = client.messages.create(
                         system=SYSTEM_PROMPT_START + st.session_state.system_prompt,
@@ -381,14 +383,14 @@ with (col_main):
             # # Chatbot for cover letter generation
             prompt = st.chat_input("Write a message... (Only for cover letter generation)")
             if prompt:
-                st.session_state.messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
+
                 # print(st.session_state.messages)
                 response = client.chat.completions.create(
                     model=st.session_state.openai_model_name,
                     messages=st.session_state.messages,
                     response_format={"type": "json_object"}
                 )
-
+                st.session_state.messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
                 st.session_state.messages.append({"role": "assistant", "content": [
                     {
                         "type": "text",
@@ -446,9 +448,9 @@ with (col_main):
             prompt = st.chat_input("Write a message... (Only for cover letter generation)")
 
             if prompt:
-                st.session_state.claude_messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
+
                 client = Anthropic()
-                for i in range(3):
+                for i in range(5):
                     try:
                         response = client.messages.create(
                             system=claude_chat_prompt,
@@ -457,12 +459,13 @@ with (col_main):
                             temperature=0.5,
                             max_tokens=4000
                         ).content[0].text
+                        response = validate_json(response)
                         break
                     except Exception as e:
                         api_error = st.toast(f"Error: {e}")
                         time.sleep(1)
-                        api_error.toast("Retrying...")
-                response = validate_json(response)
+                        api_error.toast(f"Retrying...{e}")
+                st.session_state.claude_messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
                 st.session_state.claude_messages.append({"role": "assistant", "content": [
                     {
                         "type": "text",
