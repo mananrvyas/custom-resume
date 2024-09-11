@@ -1,7 +1,7 @@
-streamlit~=1.36.0
-pylatexenc~=2.10
-openai~=1.35.3
+streamlit
+pylatexenc
+openai
 python-dotenv
-htbuilder
 anthropic
-fpdf2
+htbuilder
+fpdf
