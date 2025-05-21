@@ -1,5 +1,7 @@
 import json
 import time
+from typing import final
+
 import streamlit as st
 from pylatexenc.latex2text import LatexNodes2Text
 import subprocess
@@ -81,7 +83,7 @@ SYSTEM_PROMPT_START = ("You are an expert resume writer and job application spec
                        "Your task is to analyze the provided job posting and full resume, "
                        "then create a tailored resume and cover letter. Output your response in "
                        "JSON format with a 'resume' key containing latex code of new resume content, and "
-                       "a 'cover_letter' key containing the generated cover letter. and a 'name' key containng the name"
+                       "a 'cover_letter' key containing the generated cover letter. and a 'name' key containg the name"
                        " of the cover letter file. Try to name it "
                        f"in a way that it can be easily identified. (eg: coverLetterUserxCompany)Ensure the JSON is"
                        " properly formatted and escaped. No need to include ```json before the start"
@@ -97,6 +99,8 @@ SYSTEM_PROMPT_START = ("You are an expert resume writer and job application spec
 def validate_json(final_dict):
     if isinstance(final_dict, dict):
         return final_dict
+
+    final_dict = final_dict.split('{')[1].split("}")[0]
 
     return json.loads(final_dict.replace("```json(", "").replace(")```", "").replace("`", ""), strict=False)
 
@@ -383,7 +387,6 @@ with (col_main):
             # # Chatbot for cover letter generation
             prompt = st.chat_input("Write a message... (Only for cover letter generation)")
             if prompt:
-
                 # print(st.session_state.messages)
                 response = client.chat.completions.create(
                     model=st.session_state.openai_model_name,
@@ -459,6 +462,7 @@ with (col_main):
                             temperature=0.5,
                             max_tokens=4000
                         ).content[0].text
+                        # print(response)
                         response = validate_json(response)
                         break
                     except Exception as e:
@@ -480,14 +484,15 @@ with (col_main):
         # Ask for model name
         st.markdown("##### Model Name (for generating cover letter)")
         if st.session_state.ai_model == "OpenAI":
-            st.session_state.openai_model_name = st.selectbox("Select OpenAI model", ["gpt-3.5-turbo", "gpt-4o-mini",
-                                                                                      "gpt-4o",
+            st.session_state.openai_model_name = st.selectbox("Select OpenAI model", ["gpt-4o", "gpt-3.5-turbo",
+                                                                                      "gpt-4o-mini",
                                                                                       "gpt-4-turbo", "gpt-4"]
                                                               , label_visibility="collapsed")
         else:
-            st.session_state.claude_model_name = st.selectbox("Select Claude model", ["claude-3-haiku-20240307",
-                                                                                      "claude-3-5-sonnet-20240620",
-                                                                                      "claude-3-opus-20240229"]
+            st.session_state.claude_model_name = st.selectbox("Select Claude model", [
+                "claude-3-5-sonnet-20240620",
+                "claude-3-haiku-20240307",
+                "claude-3-opus-20240229"]
                                                               , label_visibility="collapsed")
 
         st.markdown("##### Resume System Prompt (Job details + old resume will be sent automatically)")
@@ -555,9 +560,7 @@ with (col_main):
             mime="application/pdf"
         )
 
-        # st.write("If you're making edits, click outside the text area to save your changes, and then download the
-        # PDF.")
-
+        st.write("If you're making edits, click outside the text area to save your changes, and then download the PDF.")
 
 ############################################
 # ########### FOOTER #######################
